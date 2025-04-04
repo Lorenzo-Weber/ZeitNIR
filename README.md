@@ -18,3 +18,10 @@ My approach, in average, returned a MSE loss of 0.33 and a R2 score of 0.62, whi
 only achieved a MSE loss of 0.51 and a R2 score of 0.46. The difference is due to the simplicity 
 of Spectra net (because it was not designed to predict this amount of features)
 
+## Chat comparison between those 2 architechtures using tensorboard
+
+### My proposed cnn
+![CnnCLF Loss](assets/Screenshot from 2025-04-04 00-35-57.png)
+
+### Spectra Net
+![SpectraNet Loss](assets/Screenshot from 2025-04-04 00-36-09.png)
