@@ -21,7 +21,7 @@ of Spectra net (because it was not designed to predict this amount of features)
 ## Chat comparison between those 2 architechtures using tensorboard
 
 ### My proposed cnn
-![CnnCLF Loss](assets/Screenshot from 2025-04-04 00-35-57.png)
+![CnnCLF Loss](assets/myCnn.png)
 
 ### Spectra Net
-![SpectraNet Loss](assets/Screenshot from 2025-04-04 00-36-09.png)
+![SpectraNet Loss](assets/spectraNet.png)
