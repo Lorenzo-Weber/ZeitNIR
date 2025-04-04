@@ -3,6 +3,7 @@ import torch
 from torch.utils.data import TensorDataset, DataLoader
 import torch.optim as optim
 import torch.nn as nn
+from torch.utils.tensorboard import SummaryWriter
 from cnnClf import CnnCLF
 from spectraNet import SpectraNet
 from sklearn.model_selection import train_test_split
@@ -37,63 +38,44 @@ dataset_val = TensorDataset(X_val_tensor, y_val_tensor)
 dataloader_train = DataLoader(dataset_train, batch_size=32, shuffle=True)
 dataloader_val = DataLoader(dataset_val, batch_size=32, shuffle=False)
 
-model = CnnCLF().to(device)
-opt = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
-criterion = nn.MSELoss()
-
 def r2_score(y_true, y_pred):
     ss_total = torch.sum((y_true - torch.mean(y_true)) ** 2)
     ss_residual = torch.sum((y_true - y_pred) ** 2)
     r2 = 1 - (ss_residual / ss_total)
-    return r2.item() 
+    return r2.item()
 
-# epochs = 65
-# for epoch in range(epochs):
-#     model.train()
-#     run_loss = 0.0
-#     run_r2 = 0.0
+writer = SummaryWriter("runs/training_logs")
 
-#     for inputs, labels in dataloader_train:
-#         inputs, labels = inputs.to(device), labels.to(device)
+def train_model(model, model_name, dataloader, epochs=65):
+    model.to(device)
+    optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
+    criterion = nn.MSELoss()
 
-#         opt.zero_grad()
-#         outputs = model(inputs)
-#         loss = criterion(outputs, labels)
-#         loss.backward()
-#         opt.step()
+    for epoch in range(epochs):
+        model.train()
+        run_loss = 0.0
+        run_r2 = 0.0
 
-#         run_loss += loss.item()  
-#         run_r2 += r2_score(labels, outputs)  
+        for inputs, labels in dataloader:
+            inputs, labels = inputs.to(device), labels.to(device)
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+            
+            run_loss += loss.item()
+            run_r2 += r2_score(labels, outputs)
 
-#     avg_loss = run_loss / len(dataloader_train)
-#     avg_r2 = run_r2 / len(dataloader_train)
+        avg_loss = run_loss / len(dataloader)
+        avg_r2 = run_r2 / len(dataloader)
 
-#     print(f"Epoch [{epoch+1}/{epochs}], Loss (MSE): {avg_loss:.4f}, R² Score: {avg_r2:.4f}")
+        writer.add_scalar(f'{model_name}/Loss', avg_loss, epoch)
+        writer.add_scalar(f'{model_name}/R2_Score', avg_r2, epoch)
 
-spectra = SpectraNet().to(device)
-opt = optim.Adam(spectra.parameters(), lr=0.001, weight_decay=1e-4)
-criterion = nn.MSELoss()
+        print(f"{model_name} - Epoch [{epoch+1}/{epochs}], Loss (MSE): {avg_loss:.4f}, R² Score: {avg_r2:.4f}")
 
-epochs = 65
-for epoch in range(epochs):
-    spectra.train()
-    run_loss = 0.0
-    run_r2 = 0.0
+train_model(CnnCLF(), "My CNN ", dataloader_train)
+train_model(SpectraNet(), "SpectraNet ", dataloader_train)
 
-    for inputs, labels in dataloader_train:
-        inputs, labels = inputs.to(device), labels.to(device)
-
-        opt.zero_grad()
-        outputs = spectra(inputs)
-        loss = criterion(outputs, labels)
-        loss.backward()
-        opt.step()
-
-        run_loss += loss.item()  
-        run_r2 += r2_score(labels, outputs)  
-
-    avg_loss = run_loss / len(dataloader_train)
-    avg_r2 = run_r2 / len(dataloader_train)
-
-    print(f"Epoch [{epoch+1}/{epochs}], Loss (MSE): {avg_loss:.4f}, R² Score: {avg_r2:.4f}")
-
+writer.close()
