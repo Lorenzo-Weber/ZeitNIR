@@ -2,7 +2,7 @@
 
 ## What has been done
 
-I implemented a quite large CNN to predict the properties of the soil, my architechture consists in:
+I implemented a quite large CNN to predict the properties of the soil, my architecture consists in:
 - Convolutional Layer with 32 filters and a kernel size of 4 plus a batch norm, this was done twice;
 - A max pooling layer to reduce memory usage;
 - Repeat the process twice;
@@ -18,7 +18,7 @@ My approach, in average, returned a MSE loss of 0.33 and a R2 score of 0.62, whi
 only achieved a MSE loss of 0.51 and a R2 score of 0.46. The difference is due to the simplicity 
 of Spectra net (because it was not designed to predict this amount of features)
 
-## Chat comparison between those 2 architechtures using tensorboard
+## Chart comparison between those 2 architectures using tensorboard
 
 ### My proposed cnn
 ![CnnCLF Loss](assets/myCnn.png)
